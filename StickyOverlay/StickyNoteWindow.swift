@@ -6,35 +6,45 @@ class StickyNoteWindow: NSWindow {
     private let onPin: (StickyNoteWindow) -> Void
     private var isDragging: Bool = false
     private var isClosing: Bool = false
+    internal let stickyColor: NSColor // Changed to internal for AppDelegate access
 
-    init(text: String, pinTrayWindow: PinTrayWindow, onPin: @escaping (StickyNoteWindow) -> Void) {
+    init(text: String, pinTrayWindow: PinTrayWindow, onPin: @escaping (StickyNoteWindow) -> Void, initialColor: NSColor) {
         self.pinTrayWindow = pinTrayWindow
         self.onPin = onPin
+        self.stickyColor = initialColor
         let initialFrame = NSRect(x: 0, y: 0, width: 200, height: 150)
         super.init(contentRect: initialFrame, styleMask: [.borderless, .resizable], backing: .buffered, defer: false)
         setupWindow(with: text)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 
     private func setupWindow(with text: String) {
         isMovableByWindowBackground = true
         level = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.floatingWindow)))
         isOpaque = false
-        backgroundColor = .clear
+        super.backgroundColor = stickyColor.withAlphaComponent(0.9) // Set superclass backgroundColor
 
         let contentView = NSView(frame: NSRect(x: 0, y: 0, width: 200, height: 150))
         contentView.wantsLayer = true
-        contentView.layer?.backgroundColor = NSColor.yellow.withAlphaComponent(0.8).cgColor
-        contentView.layer?.cornerRadius = 5
+        contentView.layer?.backgroundColor = stickyColor.cgColor
+        contentView.layer?.cornerRadius = 12 // Increased corner radius for more rounded appearance
         contentView.layer?.shadowOpacity = 0.3
         contentView.layer?.shadowRadius = 3
         contentView.layer?.shadowOffset = NSSize(width: 0, height: -2)
         self.contentView = contentView
 
-        textField = NSTextField(frame: NSRect(x: 5, y: 5, width: 190, height: 140))
+        textField = NSTextField(frame: NSRect(x: 10, y: 10, width: 180, height: 130)) // Adjusted for better margins
         textField.isEditable = false
         textField.isBordered = false
         textField.backgroundColor = .clear
         textField.stringValue = text
+        textField.alignment = .left
+        textField.lineBreakMode = .byWordWrapping
+        textField.cell?.wraps = true
+        textField.cell?.isScrollable = false
         contentView.addSubview(textField)
 
         makeKeyAndOrderFront(nil)
@@ -73,7 +83,6 @@ class StickyNoteWindow: NSWindow {
             return
         }
         
-        // Use the status item from AppDelegate indirectly via pinTrayWindow
         if let appDelegate = NSApplication.shared.delegate as? AppDelegate,
            let statusItem = appDelegate.statusItem {
             guard let button = statusItem.button,
@@ -116,9 +125,7 @@ class StickyNoteWindow: NSWindow {
     }
 
     private func highlightForPinning(_ highlight: Bool) {
-        contentView?.layer?.backgroundColor = highlight ?
-            NSColor.green.withAlphaComponent(0.8).cgColor :
-            NSColor.yellow.withAlphaComponent(0.8).cgColor
+        contentView?.layer?.opacity = highlight ? 0.2 : 0.5
     }
 
     private func pinStickyNote() {
