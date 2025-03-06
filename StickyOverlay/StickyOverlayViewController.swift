@@ -99,7 +99,6 @@ class StickyOverlayViewController: NSViewController {
 
     func didDrag(_ window: StickyNoteWindow) {
         checkProximityToPinIcon()
-        // Highlight the sticky note if it's over the tray
         window.highlightForPinning(isOverTray(window))
     }
 
@@ -150,14 +149,5 @@ class StickyOverlayViewController: NSViewController {
         let intersects = NSIntersectsRect(windowFrameInScreen, trayFrameInScreen)
         print("Checking if over tray - Window frame: \(windowFrameInScreen), Tray frame: \(trayFrameInScreen), Intersects: \(intersects)")
         return intersects
-    }
-
-    override func keyDown(with event: NSEvent) {
-        print("Key down event: \(event)")
-        if event.modifierFlags.contains(.command) && event.charactersIgnoringModifiers == "n" {
-            addNewStickyNote()
-        } else {
-            super.keyDown(with: event)
-        }
     }
 }

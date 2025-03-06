@@ -3,7 +3,7 @@ import Cocoa
 class StickyNoteWindow: NSWindow {
     private(set) var textField: NSTextField!
     private weak var controller: StickyOverlayViewController?
-    private var stickyContentView: NSView! // Renamed to avoid conflict with NSWindow's contentView
+    private var stickyContentView: NSView!
 
     init(controller: StickyOverlayViewController) {
         self.controller = controller
@@ -42,7 +42,7 @@ class StickyNoteWindow: NSWindow {
         stickyContentView.layer?.shadowOpacity = 0.3
         stickyContentView.layer?.shadowRadius = 3
         stickyContentView.layer?.shadowOffset = NSSize(width: 0, height: -2)
-        self.contentView = stickyContentView // Assign to NSWindow's contentView
+        self.contentView = stickyContentView
         
         textField = NSTextField(frame: NSRect(x: 5, y: 5, width: frame.width - 10, height: frame.height - 10))
         textField.isEditable = false
