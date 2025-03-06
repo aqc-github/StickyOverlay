@@ -12,9 +12,7 @@ class PinTrayWindow: NSWindow {
     }
 
     private func setupWindow() {
-        // Set window level to be above sticky notes (always on top)
         level = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.floatingWindow)) + 1)
-        
         isOpaque = false
         backgroundColor = .clear
         
