@@ -1,3 +1,10 @@
+//
+//  PinTrayWindow.swift
+//  StickyOverlay
+//
+//  Created by Alberto Quintana on 6/3/25.
+//
+
 import Cocoa
 
 class PinTrayWindow: NSWindow {

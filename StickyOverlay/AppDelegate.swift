@@ -1,3 +1,10 @@
+//
+//  AppDelegate.swift
+//  StickyOverlay
+//
+//  Created by Alberto Quintana on 6/3/25.
+//
+
 import Cocoa
 
 // Custom view class for color circles
