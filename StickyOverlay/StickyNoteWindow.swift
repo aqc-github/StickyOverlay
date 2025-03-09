@@ -131,18 +131,39 @@ class StickyNoteWindow: NSWindow {
         return intersects
     }
 
+    private func getTrayMode() -> PinTrayWindow.TrayMode {
+        // Determine if the note is over the pin or trash part of the tray
+        let windowCenter = NSPoint(x: frame.midX, y: frame.midY)
+        let trayMidX = pinTrayWindow.frame.midX
+        
+        // If the window center is on the left side of the tray, it's over the pin
+        // If it's on the right side, it's over the trash
+        return windowCenter.x < trayMidX ? .pin : .trash
+    }
+
     private func highlightForPinning(_ highlight: Bool) {
         contentView?.layer?.opacity = highlight ? 0.2 : 0.5
     }
 
     private func pinStickyNote() {
         isClosing = true
+        
+        // Determine if we're pinning or trashing based on position
+        let mode = getTrayMode()
+        pinTrayWindow.setMode(mode)
+        
         NSAnimationContext.runAnimationGroup { context in
             context.duration = 0.3
             self.animator().alphaValue = 0
+            
+            // Animate to the appropriate side of the tray
+            let targetX = mode == .pin ? 
+                pinTrayWindow.frame.origin.x + 15 : // Pin side
+                pinTrayWindow.frame.origin.x + pinTrayWindow.frame.width - 35 // Trash side
+                
             self.animator().setFrame(
                 NSRect(
-                    x: pinTrayWindow.frame.origin.x,
+                    x: targetX,
                     y: pinTrayWindow.frame.origin.y,
                     width: 20,
                     height: 20
@@ -152,7 +173,7 @@ class StickyNoteWindow: NSWindow {
         } completionHandler: {
             self.orderOut(nil)
             self.onPin(self)
-            print("Sticky note pinned and removed")
+            print("Sticky note \(mode == .pin ? "pinned" : "trashed") and removed")
         }
     }
 }

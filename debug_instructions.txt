@@ -1,0 +1,74 @@
+# Debugging the EXC_BAD_ACCESS Crash
+
+## Running the App in Debug Mode
+
+1. Open the app in Xcode
+2. Set a breakpoint in main.swift at line 12 (NSApplicationMain)
+3. Run the app with debugging enabled
+4. When breakpoint hits, open the LLDB console in Xcode
+
+## Debugging Commands for Terminal/LLDB
+
+Once your app is running, you can use these commands in LLDB console to debug:
+
+```
+# Import our debug class
+expr @import Foundation
+expr -l objc -- (void)NSClassFromString(@"DebugHelper")
+
+# Show the history window
+expr -l objc -- [DebugHelper debugShowHistoryWindow]
+
+# Get memory status
+expr -l objc -- [DebugHelper debugMemoryStatus]
+
+# Analyze window delegate
+expr -l objc -- [DebugHelper analyzeWindowDelegate]
+
+# Close the history window (this might trigger the crash)
+expr -l objc -- [DebugHelper debugCloseHistoryWindow]
+
+# After closing, check the memory status again
+expr -l objc -- [DebugHelper debugMemoryStatus]
+
+# Force memory cleanup and check for zombie objects
+expr -l objc -- [DebugHelper forceMemoryCleanup]
+
+# Analyze retain cycles
+expr -l objc -- [DebugHelper analyzeRetainCycles]
+
+# Run test sequence to reproduce crash
+expr -l objc -- [DebugHelper createAndCloseHistoryWindow]
+```
+
+## Analyzing a Crash
+
+If the app crashes, check the crash logs for:
+1. The nature of the EXC_BAD_ACCESS error
+2. The stack trace showing where it occurred
+3. Any zombie object accesses
+
+To get more details, enable Zombie Objects in Xcode:
+1. Edit Scheme > Run > Diagnostics
+2. Check "Enable Zombie Objects"
+3. Rerun the app and trigger the crash
+
+## Common Causes of EXC_BAD_ACCESS in History Window
+
+1. **Delegate issue**: The window's delegate is accessed after being deallocated
+2. **Button target/action**: A button's target is being accessed after it's deallocated
+3. **Content view issue**: The content view or its subviews are accessed after being removed
+4. **Retain cycle**: The window is not properly deallocated due to a retain cycle
+5. **Main thread access**: UI operations happening on background threads
+
+## Viewing Live Logs
+
+When running the app, check the console output for detailed logs with timestamps. These logs can help identify where the problem occurs in the sequence of events.
+
+## Memory Leak Detection
+
+If you suspect memory leaks, run the app with the Leaks instrument in Xcode:
+1. Product > Profile
+2. Select "Leaks" instrument
+3. Run and trigger the history window creation/closing several times
+4. Look for any retained objects that shouldn't be retained 

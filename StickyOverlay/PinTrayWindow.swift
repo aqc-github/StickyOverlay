@@ -8,9 +8,16 @@
 import Cocoa
 
 class PinTrayWindow: NSWindow {
+    private var currentMode: TrayMode = .pin
+    
+    enum TrayMode {
+        case pin
+        case trash
+    }
+    
     init() {
         super.init(
-            contentRect: NSRect(x: 0, y: 0, width: 60, height: 60),
+            contentRect: NSRect(x: 0, y: 0, width: 120, height: 60),
             styleMask: [.borderless],
             backing: .buffered,
             defer: false
@@ -23,7 +30,7 @@ class PinTrayWindow: NSWindow {
         isOpaque = false
         backgroundColor = .clear
         
-        let contentView = NSView(frame: NSRect(x: 0, y: 0, width: 60, height: 60))
+        let contentView = NSView(frame: NSRect(x: 0, y: 0, width: 120, height: 60))
         contentView.wantsLayer = true
         contentView.layer?.backgroundColor = NSColor.gray.withAlphaComponent(0.7).cgColor
         contentView.layer?.cornerRadius = 15
@@ -31,11 +38,19 @@ class PinTrayWindow: NSWindow {
         contentView.layer?.borderColor = NSColor.white.cgColor
         self.contentView = contentView
         
-        let pinImage = NSImage(systemSymbolName: "pin.fill", accessibilityDescription: "Pin Tray")
-        let imageView = NSImageView(frame: NSRect(x: 15, y: 15, width: 30, height: 30))
-        imageView.image = pinImage
-        imageView.imageScaling = .scaleProportionallyUpOrDown
-        contentView.addSubview(imageView)
+        // Pin icon
+        let pinImage = NSImage(systemSymbolName: "pin.fill", accessibilityDescription: "Pin")
+        let pinImageView = NSImageView(frame: NSRect(x: 15, y: 15, width: 30, height: 30))
+        pinImageView.image = pinImage
+        pinImageView.imageScaling = .scaleProportionallyUpOrDown
+        contentView.addSubview(pinImageView)
+        
+        // Trash icon
+        let trashImage = NSImage(systemSymbolName: "trash.fill", accessibilityDescription: "Trash")
+        let trashImageView = NSImageView(frame: NSRect(x: 75, y: 15, width: 30, height: 30))
+        trashImageView.image = trashImage
+        trashImageView.imageScaling = .scaleProportionallyUpOrDown
+        contentView.addSubview(trashImageView)
         
         setIsVisible(false)
     }
@@ -53,5 +68,13 @@ class PinTrayWindow: NSWindow {
             height: frame.height
         )
         setFrame(trayFrame, display: true)
+    }
+    
+    func setMode(_ mode: TrayMode) {
+        currentMode = mode
+    }
+    
+    func getMode() -> TrayMode {
+        return currentMode
     }
 }
